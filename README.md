@@ -15,7 +15,7 @@
 - FTP
 - SSH
 
-The whole setup is pre-configured and persistent on deployment. A simple bash script `update_data.sh` is present to update and backup files such as wordpress filesystem, database and static website. Several volumes have been set up to serve one or more containers.
+The whole setup is pre-configured and persistent on deployment. A simple bash script `update.sh` is present to update and backup files such as wordpress filesystem, database and static website. Several volumes have been set up to serve one or more containers.
 
 Nginx serves multiple applications:
  - Wordpress website
