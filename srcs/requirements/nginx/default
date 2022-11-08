@@ -1,0 +1,78 @@
+server {
+
+	# SSL configuration
+	#
+	listen 443 ssl default_server;
+	listen [::]:443 ssl default_server;
+
+	ssl_certificate /etc/nginx/ssl/inception.pem;
+	ssl_certificate_key /etc/nginx/ssl/inception.key;
+    ssl_protocols TLSv1.2;
+
+	root /var/www/wordpress;
+
+	index index.html index.htm index.nginx-debian.html index.php;
+
+	server_name tcharvet.42.fr www.tcharvet.42.fr;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass wordpress:9000;
+		autoindex on;
+	}
+}
+
+server {
+
+	# SSL configuration
+	#
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+	ssl_certificate /etc/nginx/ssl/inception.pem;
+	ssl_certificate_key /etc/nginx/ssl/inception.key;
+    ssl_protocols TLSv1.2;
+
+	root /var/www/adminer;
+
+	index adminer-4.8.1.php;
+
+	server_name adminer.tcharvet.42.fr www.adminer.tcharvet.42.fr;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass wordpress:9000;
+		autoindex on;
+	}
+}
+
+
+server {
+
+	# SSL configuration
+	#
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+	ssl_certificate /etc/nginx/ssl/inception.pem;
+	ssl_certificate_key /etc/nginx/ssl/inception.key;
+    ssl_protocols TLSv1.2;
+
+	root /var/www/static;
+
+	index index.html;
+
+	server_name static.tcharvet.42.fr www.static.tcharvet.42.fr;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}

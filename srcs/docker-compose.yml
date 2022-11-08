@@ -1,0 +1,108 @@
+version: "3.8"
+
+volumes:
+    db:
+        driver_opts:
+            type: none
+            o: bind
+            device: /home/tcharvet/data/db
+    wp:
+        driver_opts:
+            type: none
+            o: bind
+            device: /home/tcharvet/data/wp
+    adminer:
+        driver_opts:
+            type: none
+            o:  bind
+            device: /home/tcharvet/data/adminer
+    static:
+        driver_opts:
+            type: none
+            o: bind
+            device: /home/tcharvet/data/static
+networks:
+    app:
+services:
+    wordpress:
+        container_name: "wordpress"
+        build: ./requirements/wordpress
+        image: wordpress
+        hostname: wordpress
+        restart: always
+        env_file:
+            - .env
+        networks:
+            - app
+        volumes:
+            - wp:/var/www/wordpress
+            - adminer:/var/www/adminer
+    nginx:
+        container_name: "nginx"
+        build: ./requirements/nginx
+        image: nginx
+        hostname: nginx
+        restart: always
+        ports: 
+            - "443:443"
+        networks:
+            - app
+        volumes:
+            - wp:/var/www/wordpress
+            - adminer:/var/www/adminer
+            - static:/var/www/static
+    mariadb:
+        container_name: "mariadb"
+        build: ./requirements/mariadb
+        image: mariadb
+        hostname: mariadb
+        restart: always
+        networks:
+            - app
+        volumes:
+            - db:/var/lib/mysql
+            - adminer:/var/www/adminer
+    redis:
+        container_name: "redis"
+        build: ./requirements/redis
+        image: redis
+        hostname: redis
+        restart: always
+        networks:
+            - app
+    vsftpd:
+        container_name: "vsftpd"
+        build:
+            context: ./requirements/vsftpd
+            args:
+                FTP_USER: ${FTP_USER}
+                FTP_USER_PASSWORD: ${FTP_USER_PASSWORD}
+        image: vsftpd
+        hostname: vsftpd
+        restart: always
+        init: true
+        ports:
+            - "20:20"
+            - "21:21"
+        networks:
+            - app
+        volumes:
+            - wp:/home/${FTP_USER}/var/www/wp
+            - db:/home/${FTP_USER}/var/www/db
+            - adminer:/home/${FTP_USER}/var/www/adminer 
+    ssh:
+        container_name: "ssh"
+        build:
+            context: ./requirements/ssh
+            args:
+                SSH_USER: ${SSH_USER}
+                SSH_USER_PASSWORD: ${SSH_USER_PASSWORD}
+        image: ssh 
+        hostname: ssh
+        restart: always
+        ports:
+            - "22::22"
+        networks:
+            - app
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
